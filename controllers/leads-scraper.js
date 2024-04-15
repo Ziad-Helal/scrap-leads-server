@@ -34,7 +34,11 @@ function sendRequest(endPoint, response, params) {
 
 async function sendMultiRequests(endPoint, response, params) {
   const url = baseUrl + endPoint;
-  let results, meta, data, status, cursor;
+  let results,
+    meta,
+    data = [],
+    status,
+    cursor;
 
   do {
     const result = await axios
@@ -49,23 +53,21 @@ async function sendMultiRequests(endPoint, response, params) {
     await new Promise((resolver) => setTimeout(resolver, 5000));
   } while (status == "updating");
 
-  // if (results.meta.has_more_pages && params.skip_data != 1) {
-
-  //   do {
-  //     const nextPage = await axios.get(url, {headers, params: {...params, cursor}})
-  //   } while (cursor);
-  // }
-  // if (data.data.length < data.meta.count && params.skip_data != 1)
-  //   do {
-  //     if(cursor) {const nextData = await axios
-  //       .get(url, { headers, params: { ...params, cursor } })
-  //       .then(({ data }) => data)
-  //       .catch((error) => response.json(error));
-  //     data.data.push(nextData.data);
-  //     console.log(nextData);
-  //     console.log(data);
-  //     cursor = nextData.meta.cursor;}
-  //   } while (cursor);
-
-  response.json(results);
+  if (results.meta.has_more_pages && params.skip_data != 1) {
+    cursor = results.meta.next_cursor;
+    data = results.data;
+    do {
+      const result = await axios
+        .get(url, {
+          headers,
+          params: { ...params, cursor },
+        })
+        .then(({ data }) => data)
+        .catch((error) => response.json(error));
+      meta = result.meta;
+      data.push(...result.data);
+      cursor = meta.next_cursor;
+    } while (cursor);
+    response.json({ meta, data });
+  } else response.json(results);
 }
