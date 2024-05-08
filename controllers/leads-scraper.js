@@ -50,13 +50,15 @@ async function sendMultiRequests(endPoint, response, params) {
       results = result;
       break;
     }
-    await new Promise((resolver) => setTimeout(resolver, 5000));
+    await new Promise((resolver) => setTimeout(resolver, 2000));
   } while (status == "updating");
 
   if (results.meta.has_more_pages && params.skip_data != 1) {
+    let c = 1;
     cursor = results.meta.next_cursor;
     data = results.data;
     do {
+      c++;
       const result = await axios
         .get(url, {
           headers,
@@ -65,6 +67,7 @@ async function sendMultiRequests(endPoint, response, params) {
         .then(({ data }) => data)
         .catch((error) => response.json(error));
       meta = result.meta;
+      console.log(c, result.meta.count, result.meta.status);
       data.push(...result.data);
       cursor = meta.next_cursor;
     } while (cursor);
