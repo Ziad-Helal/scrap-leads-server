@@ -35,10 +35,19 @@ function sendRequest(endPoint, response, params) {
 async function sendMultiRequests(endPoint, response, params) {
   const url = baseUrl + endPoint;
   let c = 1;
-  let { meta, data } = await sendScrappingRequest(url, response, params, c);
-  c++;
+  let { meta, data } = await sendScrappingRequest(
+    url,
+    response,
+    {
+      ...params,
+      cursor:
+        "eyJnbWFwX3BsYWNlX2lkIjoxNTAxNzIyMywiX3BvaW50c1RvTmV4dEl0ZW1zIjp0cnVlfQ",
+    },
+    c
+  );
 
-  while (meta.has_more_pages) {
+  while (meta.has_more_pages && c < 100) {
+    c++;
     const { meta: currentMeta, data: currnetData } = await sendScrappingRequest(
       url,
       response,
@@ -50,28 +59,27 @@ async function sendMultiRequests(endPoint, response, params) {
     );
     meta = currentMeta;
     data.push(...currnetData);
-    c++;
   }
 
   response.json({ meta, data });
 }
 
-async function sendScrappingRequest(url, response, params, c) {
+async function sendScrappingRequest(url, response, params, counter) {
   let result,
-    i = 1;
+    c = 1;
 
   do {
     result = await axios
       .get(url, { headers, params })
       .then(({ data }) => data)
-      .catch((error) => console.log(error));
-    console.log(i, result.meta);
+      .catch((error) => response.json(error));
+    console.log(c, result.meta);
     await new Promise((resolver) => setTimeout(resolver, 200));
-    i++;
+    c++;
   } while (result.meta.status != "completed");
   console.log(
-    `${c * 50} / ${result.meta.count}\n${
-      result.meta.count - c * 50
+    `${counter * result.meta.per_page + 12500} / ${result.meta.count}\n${
+      result.meta.count - counter * result.meta.per_page
     } remaining...`
   );
 
