@@ -34,7 +34,9 @@ function sendRequest(endPoint, response, params) {
 
 async function sendMultiRequests(endPoint, response, params) {
   const url = baseUrl + endPoint;
-  let { meta, data } = await sendScrappingRequest(url, response, params);
+  let c = 1;
+  let { meta, data } = await sendScrappingRequest(url, response, params, c);
+  c++;
 
   while (meta.has_more_pages) {
     const { meta: currentMeta, data: currnetData } = await sendScrappingRequest(
@@ -43,70 +45,35 @@ async function sendMultiRequests(endPoint, response, params) {
       {
         ...params,
         cursor: meta.next_cursor,
-      }
+      },
+      c
     );
     meta = currentMeta;
     data.push(...currnetData);
+    c++;
   }
 
   response.json({ meta, data });
 }
 
-async function sendScrappingRequest(url, response, params) {
-  let result;
+async function sendScrappingRequest(url, response, params, c) {
+  let result,
+    i = 1;
 
   do {
     result = await axios
       .get(url, { headers, params })
       .then(({ data }) => data)
-      .catch((error) => response.json(error));
-    console.log(result.meta);
-    await new Promise((resolver) => setTimeout(resolver, 10000));
+      .catch((error) => console.log(error));
+    console.log(i, result.meta);
+    await new Promise((resolver) => setTimeout(resolver, 200));
+    i++;
   } while (result.meta.status != "completed");
-  console.log(result.meta.count);
+  console.log(
+    `${c * 50} / ${result.meta.count}\n${
+      result.meta.count - c * 50
+    } remaining...`
+  );
 
   return result;
 }
-
-// async function sendMultiRequests(endPoint, response, params) {
-//   const url = baseUrl + endPoint;
-//   let results,
-//     meta,
-//     data = [],
-//     status,
-//     cursor;
-
-//   do {
-//     const result = await axios
-//       .get(url, { headers, params })
-//       .then(({ data }) => data)
-//       .catch((error) => response.json(error));
-//     status = result.meta.status;
-//     if (status != "updating") {
-//       results = result;
-//       break;
-//     }
-//     await new Promise((resolver) => setTimeout(resolver, 2000));
-//   } while (status == "updating");
-
-//   if (results.meta.has_more_pages && params.skip_data != 1) {
-//     let c = 1;
-//     cursor = results.meta.next_cursor;
-//     data = results.data;
-//     do {
-//       c++;
-//       const result = await axios
-//         .get(url, {
-//           headers,
-//           params: { ...params, cursor },
-//         })
-//         .then(({ data }) => data)
-//         .catch((error) => response.json(error));
-//       meta = result.meta;
-//       console.log(c, result.meta.count, result.meta.status);
-//       data.push(...result.data);
-//       cursor = meta.next_cursor;
-//     } while (cursor);
-//     response.json({ meta, data });
-//   } else response.json(results);
-// }
