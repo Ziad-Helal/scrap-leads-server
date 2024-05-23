@@ -41,7 +41,7 @@ async function sendMultiRequests(endPoint, response, params) {
     {
       ...params,
       cursor:
-        "eyJnbWFwX3BsYWNlX2lkIjoxNTAxNzIyMywiX3BvaW50c1RvTmV4dEl0ZW1zIjp0cnVlfQ",
+        "eyJnbWFwX3BsYWNlX2lkIjoxOTM4NzU2MDYsIl9wb2ludHNUb05leHRJdGVtcyI6dHJ1ZX0",
     },
     c
   );
@@ -78,8 +78,8 @@ async function sendScrappingRequest(url, response, params, counter) {
     c++;
   } while (result.meta.status != "completed");
   console.log(
-    `${counter * result.meta.per_page + 12500} / ${result.meta.count}\n${
-      result.meta.count - counter * result.meta.per_page
+    `${counter * result.meta.per_page + 25000} / ${result.meta.count}\n${
+      result.meta.count - counter * result.meta.per_page - 25000
     } remaining...`
   );
 
