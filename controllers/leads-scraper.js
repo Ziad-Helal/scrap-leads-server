@@ -40,13 +40,13 @@ async function sendMultiRequests(endPoint, response, params) {
     response,
     {
       ...params,
-      cursor:
-        "eyJnbWFwX3BsYWNlX2lkIjoxOTM4NzU2MDYsIl9wb2ludHNUb05leHRJdGVtcyI6dHJ1ZX0",
+      // cursor:
+      //   "eyJnbWFwX3BsYWNlX2lkIjoxNDc5MjQwOSwiX3BvaW50c1RvTmV4dEl0ZW1zIjp0cnVlfQ",
     },
     c
   );
 
-  while (meta.has_more_pages && c < 100) {
+  while (meta.has_more_pages /*&& c < 100*/) {
     c++;
     const { meta: currentMeta, data: currnetData } = await sendScrappingRequest(
       url,
@@ -78,8 +78,8 @@ async function sendScrappingRequest(url, response, params, counter) {
     c++;
   } while (result.meta.status != "completed");
   console.log(
-    `${counter * result.meta.per_page + 25000} / ${result.meta.count}\n${
-      result.meta.count - counter * result.meta.per_page - 25000
+    `${counter * result.meta.per_page + 0} / ${result.meta.count}\n${
+      result.meta.count - counter * result.meta.per_page - 0
     } remaining...`
   );
 
