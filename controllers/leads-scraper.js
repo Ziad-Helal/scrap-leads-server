@@ -41,7 +41,7 @@ async function sendMultiRequests(endPoint, response, params) {
     {
       ...params,
       cursor:
-        "eyJnbWFwX3BsYWNlX2lkIjo3MDI5MzE0NywiX3BvaW50c1RvTmV4dEl0ZW1zIjp0cnVlfQ",
+        "eyJnbWFwX3BsYWNlX2lkIjoxNTM2NDcxNDUsIl9wb2ludHNUb05leHRJdGVtcyI6dHJ1ZX0",
     },
     c
   );
@@ -74,12 +74,12 @@ async function sendScrappingRequest(url, response, params, counter) {
       .then(({ data }) => data)
       .catch((error) => response.json(error));
     console.log(c, result.meta);
-    await new Promise((resolver) => setTimeout(resolver, 10000));
+    await new Promise((resolver) => setTimeout(resolver, 200));
     c++;
   } while (result.meta.status != "completed");
   console.log(
-    `${counter * result.meta.per_page + 22500} / ${result.meta.count}\n${
-      result.meta.count - counter * result.meta.per_page - 22500
+    `${counter * result.meta.per_page + 27500} / ${result.meta.count}\n${
+      result.meta.count - counter * result.meta.per_page - 27500
     } remaining...`
   );
 
