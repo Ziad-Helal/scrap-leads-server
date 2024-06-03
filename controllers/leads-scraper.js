@@ -45,8 +45,7 @@ async function sendMultiRequests(endPoint, response, params) {
     c
   );
 
-  // && c < 200
-  while (meta.has_more_pages) {
+  while (meta.has_more_pages && c < 10) {
     c++;
     const { meta: currentMeta, data: currnetData } = await sendScrappingRequest(
       url,
@@ -74,7 +73,7 @@ async function sendScrappingRequest(url, response, params, counter) {
       .then(({ data }) => data)
       .catch((error) => response.json(error));
     console.log(c, result.meta);
-    await new Promise((resolver) => setTimeout(resolver, 200));
+    await new Promise((resolver) => setTimeout(resolver, 10000));
     c++;
   } while (result.meta.status != "completed");
   console.log(
